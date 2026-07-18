@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Options Platform - Interactive Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#080C14',
+                        panelDark: '#0F172A',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth ranges styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #1e293b;
+            height: 6px;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            background: #3b82f6;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="bg-[#080C14] text-gray-200 font-sans min-h-screen">
+
+    <div class="bg-[#0F172A] border-b border-gray-800 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs gap-4 font-mono">
+        <div class="flex items-center gap-6 flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-gray-400">NIFTY 50:</span>
+                <span class="text-green-400 flex items-center gap-1 font-bold" id="tickerSpot">24,000.00</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-gray-400">INDIA VIX:</span>
+                <span class="text-yellow-500 font-bold">14.35 (Low VIX)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-gray-400">Repo Rate:</span>
+                <span class="text-blue-400 font-bold">6.50% </span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5 text-gray-400">
+                <span id="wsStatusDot" class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+                <span id="wsStatusText">WebSocket Live</span>
+            </span>
+            <button id="toggleFeedBtn" onclick="toggleFeed()" class="p-1.5 bg-red-900/40 text-red-400 border border-red-900/30 rounded cursor-pointer hover:bg-red-900/60 transition">
+                <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+    </div>
+
+    <header class="border-b border-gray-800 bg-[#0F172A] px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2.5">
+                <div class="bg-blue-600 px-2 py-1 rounded text-white font-black text-xs tracking-wider">SMART_OPT</div>
+                <h1 class="text-lg font-black text-white tracking-tight">OPTIONS TRADING ANALYTICS SaaS</h1>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Mac M1 Native Execution Environment — Options Pricing, Payoff Charts & Greeks</p>
+        </div>
+
+        <nav class="flex items-center gap-1 bg-[#111827] p-1.5 rounded-lg border border-gray-800 overflow-x-auto">
+            <button onclick="switchTab('builder')" id="tab-builder" class="nav-btn px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer bg-blue-600 text-white transition">
+                <i data-lucide="sliders" class="w-3.5 h-3.5 inline mr-1.5"></i> Strategy Builder
+            </button>
+            <button onclick="switchTab('chain')" id="tab-chain" class="nav-btn px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-gray-200 transition">
+                <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1.5"></i> Option Chain
+            </button>
+            <button onclick="switchTab('ai')" id="tab-ai" class="nav-btn px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-gray-200 transition">
+                <i data-lucide="cpu" class="w-3.5 h-3.5 inline mr-1.5"></i> AI Assistant
+            </button>
+            <button onclick="switchTab('social')" id="tab-social" class="nav-btn px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-gray-200 transition">
+                <i data-lucide="users" class="w-3.5 h-3.5 inline mr-1.5"></i> Community Hub
+            </button>
+            <button onclick="switchTab('journal')" id="tab-journal" class="nav-btn px-4 py-1.5 rounded-md text-xs font-semibold cursor-pointer text-gray-400 hover:text-gray-200 transition">
+                <i data-lucide="book-marked" class="w-3.5 h-3.5 inline mr-1.5"></i> Trade Journal
+            </button>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6">
+
+        <div class="bg-blue-950/20 border border-blue-900/40 text-xs text-blue-300 px-4 py-3 rounded-xl flex items-start gap-3 mb-6 shadow-lg">
+            <i data-lucide="shield-alert" class="w-5 h-5 text-blue-400 shrink-0 mt-0.5"></i>
+            <div>
+                <p class="font-bold text-gray-200">SEBI Regulatory Notice for Options Trading:</p>
+                <p class="mt-1 leading-relaxed text-gray-400">
+                    Calculations and sharing systems are strictly for educational and training purposes. Options trading involves high leverage and could result in major capital drawdowns. All data is processed locally on your MacBook M1.
+                </p>
+            </div>
+        </div>
+
+        <div id="view-builder" class="tab-view grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl flex flex-col gap-6">
+                
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-2 mb-4 flex items-center justify-between">
+                        <span>MARKET SETTINGS</span>
+                        <i data-lucide="sliders" class="w-4 h-4 text-blue-500"></i>
+                    </h3>
+
+                    <div class="space-y-5">
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-1.5">
+                                <span class="text-gray-400">Spot Price:</span>
+                                <span class="text-white font-bold" id="valSpot">24,000</span>
+                            </div>
+                            <input type="range" id="sliderSpot" min="23000" max="25000" value="24000" step="10" oninput="updateParams()" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-1.5">
+                                <span class="text-gray-400">Volatility (IV):</span>
+                                <span class="text-white font-bold" id="valIv">16%</span>
+                            </div>
+                            <input type="range" id="sliderIv" min="5" max="50" value="16" step="1" oninput="updateParams()" class="w-full">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-mono mb-1.5">
+                                <span class="text-gray-400">Days to Expiration (DTE):</span>
+                                <span class="text-white font-bold" id="valDte">14 Days</span>
+                            </div>
+                            <input type="range" id="sliderDte" min="1" max="60" value="14" step="1" oninput="updateParams()" class="w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-2 mb-3 flex items-center justify-between">
+                        <span>STRATEGY LEG BASKET</span>
+                        <span id="basketCount" class="text-xs bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded font-mono font-bold">0 Legs</span>
+                    </h3>
+
+                    <div id="basketList" class="space-y-3 max-h-[250px] overflow-y-auto pr-1">
+                        </div>
+
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button onclick="addManualLeg()" class="bg-blue-600/10 hover:bg-blue-600/30 text-blue-400 border border-blue-600/20 text-xs py-2 rounded-xl transition font-semibold cursor-pointer flex items-center justify-center gap-1.5">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Leg
+                        </button>
+                        <button onclick="clearBasket()" class="bg-red-900/10 hover:bg-red-900/30 text-red-400 border border-red-900/20 text-xs py-2 rounded-xl transition font-semibold cursor-pointer">
+                            Clear All Basket Legs
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827] border border-gray-800 rounded-xl p-4 space-y-3.5">
+                    <h4 class="text-[10px] font-black text-gray-400 tracking-widest uppercase border-b border-gray-800 pb-1.5">PORTFOLIO GREEKS</h4>
+                    <div class="grid grid-cols-2 gap-4 font-mono text-xs">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block mb-0.5">Delta (&Delta;) </span>
+                            <span id="portDelta" class="text-sm font-bold text-green-400">0.00</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block mb-0.5">Gamma (&Gamma;)</span>
+                            <span id="portGamma" class="text-sm font-bold text-yellow-400">0.0000</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block mb-0.5">Vega (&mathcal;V;)</span>
+                            <span id="portVega" class="text-sm font-bold text-teal-400">0.00</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-gray-400 block mb-0.5">Theta (&Theta;)</span>
+                            <span id="portTheta" class="text-sm font-bold text-red-400">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                
+                <div class="bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-3 mb-4">
+                        <div>
+                            <h3 class="text-sm font-black text-white">DYNAMIC POSITION PAYOFF PROFILE</h3>
+                            <p class="text-xs text-gray-400">Terminal Expiry and T+0 curves compiled using Black-76 option pricing model</p>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-mono bg-[#111827] px-3.5 py-1.5 rounded-lg border border-gray-800">
+                            <div>
+                                <span class="text-gray-400 text-[9px] block">Max Profit:</span>
+                                <span id="statMaxProfit" class="text-green-400 font-bold">₹0</span>
+                            </div>
+                            <div class="border-l border-gray-800 h-6 pl-3">
+                                <span class="text-gray-400 text-[9px] block">Max Loss:</span>
+                                <span id="statMaxLoss" class="text-red-400 font-bold">₹0</span>
+                            </div>
+                            <div class="border-l border-gray-800 h-6 pl-3">
+                                <span class="text-gray-400 text-[9px] block">Realized P&L:</span>
+                                <span id="statRealizedPnl" class="text-gray-300 font-bold">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#080C14] border border-gray-800 rounded-xl p-3 relative">
+                        <div class="w-full h-[300px]" id="svgContainer">
+                            </div>
+
+                        <div class="flex flex-wrap items-center justify-center gap-6 text-xs mt-3 border-t border-gray-800 pt-3 font-semibold text-gray-400">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-3 h-0.5 bg-green-500 inline-block"></span> Expiration Payoff (Intrinsic)
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-3 h-0.5 bg-blue-500 inline-block border-t border-dashed border-blue-400"></span> Today's Mark-to-Market (T+0)
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full inline-block"></span> Live Spot Price
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-2 mb-4 flex items-center justify-between">
+                        <span>INSTANT STRATEGY PRESETS</span>
+                        <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button onclick="loadStrategyPreset('bull_call')" class="bg-blue-900/10 hover:bg-blue-900/30 text-blue-300 border border-blue-900/20 text-xs py-2.5 rounded-xl cursor-pointer font-bold transition">
+                            Bull Call Spread 
+                        </button>
+                        <button onclick="loadStrategyPreset('straddle')" class="bg-purple-900/10 hover:bg-purple-900/30 text-purple-300 border border-purple-900/20 text-xs py-2.5 rounded-xl cursor-pointer font-bold transition">
+                            Long Straddle 
+                        </button>
+                        <button onclick="loadStrategyPreset('iron_condor')" class="bg-green-900/10 hover:bg-green-900/30 text-green-300 border border-green-900/20 text-xs py-2.5 rounded-xl cursor-pointer font-bold transition">
+                            Iron Condor 
+                        </button>
+                        <button onclick="loadStrategyPreset('bear_put')" class="bg-red-900/10 hover:bg-red-900/30 text-red-300 border border-red-900/20 text-xs py-2.5 rounded-xl cursor-pointer font-bold transition">
+                            Bear Put Spread 
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="view-chain" class="tab-view hidden bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-800 pb-4 mb-4">
+                <div>
+                    <h3 class="text-sm font-black text-white">NIFTY 50 REAL-TIME OPTION CHAIN</h3>
+                    <p class="text-xs text-gray-400">Live option premiums and theoretical Black-76 Greeks computed instantly</p>
+                </div>
+                <div class="text-xs font-mono text-gray-400">
+                    Expiry Expiration: <span class="text-white font-bold bg-[#111827] border border-gray-800 px-3 py-1.5 rounded-lg">30-Jun-2026 (Monthly)</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-gray-800 bg-[#080C14]">
+                <table class="w-full text-left text-xs text-gray-400">
+                    <thead class="bg-[#111827] text-gray-300 border-b border-gray-800 font-mono font-bold text-[10px]">
+                        <tr>
+                            <th colspan="4" class="text-center border-r border-gray-800 text-green-400 py-2 bg-green-950/15">CALL OPTIONS (CE)</th>
+                            <th class="text-center bg-[#1F2937] text-white">STRIKE</th>
+                            <th colspan="4" class="text-center text-red-400 py-2 bg-red-950/15">PUT OPTIONS (PE)</th>
+                        </tr>
+                        <tr class="border-t border-gray-800">
+                            <th class="px-3 py-2">Delta</th>
+                            <th class="px-3 py-2">Theta</th>
+                            <th class="px-3 py-2">LTP (Bid/Ask)</th>
+                            <th class="px-3 py-2 text-center border-r border-gray-800">Buy Leg</th>
+                            <th class="text-center bg-[#1F2937] px-4 py-2 font-bold text-white">Strike</th>
+                            <th class="px-3 py-2 text-center border-r border-gray-800">Buy Leg</th>
+                            <th class="px-3 py-2">LTP (Bid/Ask)</th>
+                            <th class="px-3 py-2">Theta</th>
+                            <th class="px-3 py-2">Delta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="optionChainBody" class="divide-y divide-gray-900 font-mono text-xs">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-ai" class="tab-view hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+                <div>
+                    <h3 class="text-sm font-black text-white flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-5 h-5 text-blue-500"></i> AI AGENTIC PLANNING
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Runs autonomous analysis debate nodes step-by-step to compile structural option plays.
+                    </p>
+                </div>
+
+                <div class="space-y-3 mt-2">
+                    <label class="block text-xs font-bold text-gray-400">Target Security:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="aiTickerInput" value="NIFTY" class="flex-1 bg-[#111827] border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white uppercase focus:outline-none focus:border-blue-500 font-mono">
+                        <button onclick="runAiAgentDebate()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-1.5 shadow-md shrink-0">
+                            <i data-lucide="send" class="w-4 h-4"></i> Debate Nodes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#111827] border border-gray-800 rounded-xl p-4 flex-1">
+                    <h4 class="text-[10px] font-black text-gray-400 tracking-widest uppercase border-b border-gray-800 pb-1.5 mb-3">AGENT EXECUTION TRACE</h4>
+                    <div id="aiStepsLog" class="space-y-3 font-mono text-xs text-gray-400">
+                        <p class="text-gray-500 italic text-center py-6">No research planning initiated.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 bg-[#0F172A] border border-gray-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between min-h-[450px]">
+                <div id="aiResponseContainer" class="space-y-5">
+                    <div class="flex flex-col items-center justify-center text-center p-6 text-gray-500 h-[350px] w-full">
+                        <i data-lucide="cpu" class="w-12 h-12 text-gray-700 mb-3"></i>
+                        <p class="text-xs font-bold">Exposes complete white-box reasoning. Zero black-box signals.</p>
+                        <p class="text-[10px] text-gray-600 max-w-sm mt-1 leading-relaxed">
+                            Click 'Debate Nodes' to trigger the planning graph. Specialised Bull, Bear, and Judge nodes will run step-by-step.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-800 pt-3 mt-4 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+                    <span>Model Context Protocol v1.1</span>
+                    <span>No data is sent to external servers</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-social" class="tab-view hidden">
+            <div class="bg-green-950/15 border border-green-900/40 text-xs text-green-300 px-4 py-3 rounded-xl flex items-center gap-3 shadow-lg mb-4">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400 shrink-0"></i>
+                <p>
+                    <strong>Educational Sandboxing:</strong> Chat with other community traders, share strategy templates, and post live trade updates. Clicking "Load Strategy" imports legs straight into your builder. All chat is simulated locally in your browser — nothing leaves your device.
+                </p>
+            </div>
+
+            <div class="bg-[#0F172A] border border-gray-800 rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[190px_1fr] h-[620px]">
+                <!-- Channel sidebar -->
+                <div class="bg-[#0B1220] border-r border-gray-800 p-3 flex flex-col gap-1 overflow-y-auto">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-2 mb-1">Channels</h4>
+                    <button onclick="switchChannel('general')" id="channel-general" class="channel-btn text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-gray-300 hover:bg-gray-800/60 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="text-gray-500">#</span> general
+                    </button>
+                    <button onclick="switchChannel('strategy-share')" id="channel-strategy-share" class="channel-btn text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-gray-300 hover:bg-gray-800/60 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="text-gray-500">#</span> strategy-share
+                    </button>
+                    <button onclick="switchChannel('trade-updates')" id="channel-trade-updates" class="channel-btn text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-gray-300 hover:bg-gray-800/60 transition flex items-center gap-1.5 cursor-pointer">
+                        <span class="text-gray-500">#</span> trade-updates
+                    </button>
+
+                    <div class="flex-1"></div>
+                    <div class="border-t border-gray-800 pt-3 mt-2 px-2">
+                        <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                            <span class="w-2 h-2 bg-green-500 rounded-full shrink-0"></span> You're online
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message pane -->
+                <div class="flex flex-col min-h-0">
+                    <div class="border-b border-gray-800 px-4 py-3 flex items-center justify-between shrink-0">
+                        <div>
+                            <h3 id="channelTitle" class="text-sm font-black text-white"># general</h3>
+                            <p id="channelDesc" class="text-[11px] text-gray-500">General market chat</p>
+                        </div>
+                    </div>
+
+                    <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-4 space-y-4"></div>
+
+                    <div class="border-t border-gray-800 p-3 shrink-0">
+                        <div class="flex items-end gap-2">
+                            <textarea id="chatInput" rows="1" placeholder="Message #general..." class="flex-1 bg-[#111827] border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white resize-none focus:outline-none focus:border-blue-500" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendChatMessage();}"></textarea>
+                            <button onclick="shareCurrentPosition()" title="Share your current open position" class="bg-[#111827] hover:bg-gray-800 border border-gray-800 text-gray-300 p-2.5 rounded-xl transition shrink-0 cursor-pointer">
+                                <i data-lucide="paperclip" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="sendChatMessage()" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-xl transition shrink-0 cursor-pointer">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-journal" class="tab-view hidden space-y-6">
+            <div class="bg-blue-950/20 border border-blue-900/40 text-xs text-blue-300 px-4 py-3 rounded-xl flex items-center gap-3 shadow-lg">
+                <i data-lucide="book-marked" class="w-5 h-5 text-blue-400 shrink-0"></i>
+                <p>
+                    <strong>Trade Journal:</strong> Log every trade with its index, legs, entry and exit price. Saved locally in this browser so it survives a refresh.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Total Trades</span>
+                    <span id="jStatTotal" class="text-lg font-black text-white font-mono">0</span>
+                </div>
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Open</span>
+                    <span id="jStatOpen" class="text-lg font-black text-yellow-400 font-mono">0</span>
+                </div>
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Closed</span>
+                    <span id="jStatClosed" class="text-lg font-black text-white font-mono">0</span>
+                </div>
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Win Rate</span>
+                    <span id="jStatWinRate" class="text-lg font-black text-white font-mono">—</span>
+                </div>
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Total P&amp;L</span>
+                    <span id="jStatTotalPnl" class="text-lg font-black text-white font-mono">—</span>
+                </div>
+                <div class="bg-[#0F172A] border border-gray-800 rounded-xl p-3.5">
+                    <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wide block">Avg P&amp;L / Trade</span>
+                    <span id="jStatAvgPnl" class="text-lg font-black text-white font-mono">—</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex gap-1.5 bg-[#111827] p-1 rounded-lg border border-gray-800">
+                    <button id="jfilter-all" onclick="setJournalFilter('all')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-md cursor-pointer transition">All</button>
+                    <button id="jfilter-open" onclick="setJournalFilter('open')" class="text-gray-400 text-xs font-bold px-3 py-1.5 rounded-md cursor-pointer transition hover:text-gray-200">Open</button>
+                    <button id="jfilter-closed" onclick="setJournalFilter('closed')" class="text-gray-400 text-xs font-bold px-3 py-1.5 rounded-md cursor-pointer transition hover:text-gray-200">Closed</button>
+                </div>
+                <button onclick="openJournalModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Trade Entry
+                </button>
+            </div>
+
+            <div id="journalList" class="space-y-3"></div>
+        </div>
+
+    </main>
+
+    <footer class="bg-[#0F172A] border-t border-gray-800 px-6 py-8 mt-12 text-xs text-gray-500 leading-relaxed font-sans">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-6">
+            <div class="max-w-xl space-y-2">
+                <h4 class="font-bold text-gray-300 uppercase tracking-wider text-[10px]">PLATFORM COMPLIANCE & LEGAL SAFETY STANDARDS</h4>
+                <p>
+                    This platform functions strictly as an offline-capable mathematical options model based on the standard Black-76 formulation for pricing European futures options. Calculated options Greeks, prices, and payoff diagrams are generated inside your browser utilizing client-side computing logic. We do not handle real capital, run API broker order routing, or provide financial advice.
+                </p>
+            </div>
+            <div class="space-y-2 text-[10px] font-mono">
+                <h4 class="font-bold text-gray-300 uppercase tracking-wider">M1 MAC STACK PARAMETERS</h4>
+                <ul class="space-y-1">
+                    <li>• Processing Engine: HTML5 Canvas + SVG Graph vectors </li>
+                    <li>• Calculations: Vectorized Black-76 Model </li>
+                    <li>• Framework: Tailwind CSS v3 + Pure Vanilla Javascript</li>
+                    <li>• Regulatory Compliance: SEBI Social Media Disclosures 2026</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CLOSE POSITION MODAL -->
+    <div id="closeLegModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0F172A] border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-sm font-black text-white mb-1 flex items-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4 text-yellow-400"></i> Close Position
+            </h3>
+            <p id="closeModalLegInfo" class="text-xs text-gray-400 mb-4">—</p>
+
+            <div class="space-y-3">
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Exit Price / Share</span>
+                    <input type="number" id="closeExitPrice" step="0.01" min="0" oninput="updateClosePreview()" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
+                </label>
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Lots to Close</span>
+                    <input type="number" id="closeLots" min="1" step="1" oninput="updateClosePreview()" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
+                    <span id="closeLotsHint" class="text-[10px] text-gray-500 mt-1 block">—</span>
+                </label>
+            </div>
+
+            <div class="mt-4 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2.5 flex items-center justify-between text-xs">
+                <span class="text-gray-400 font-semibold">Estimated P&amp;L</span>
+                <span id="closeModalPnlPreview" class="font-mono font-bold">₹0</span>
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="cancelCloseModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Cancel</button>
+                <button onclick="confirmCloseLeg()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Confirm Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW TRADE JOURNAL ENTRY MODAL -->
+    <div id="journalModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-[#0F172A] border border-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl my-8">
+            <h3 class="text-sm font-black text-white mb-4 flex items-center gap-2">
+                <i data-lucide="book-marked" class="w-4 h-4 text-blue-400"></i> New Trade Journal Entry
+            </h3>
+
+            <div class="grid grid-cols-2 gap-3 mb-3.5">
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Index / Symbol</span>
+                    <input type="text" id="journalIndexName" placeholder="NIFTY" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-blue-500 uppercase">
+                </label>
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Entry Date & Time</span>
+                    <input type="datetime-local" id="journalEntryTime" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Strategy Legs</span>
+                <button onclick="importBasketToJournal()" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold cursor-pointer">Import From Strategy Basket</button>
+            </div>
+            <div id="journalLegsWrap" class="space-y-1.5 mb-1.5"></div>
+            <button onclick="addJournalModalLeg()" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold cursor-pointer mb-3.5">+ Add Leg</button>
+
+            <div class="grid grid-cols-3 gap-3 mb-3.5">
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Position</span>
+                    <select id="journalSide" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-2 py-2 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                        <option value="SELL">SELL (credit)</option>
+                        <option value="BUY">BUY (debit)</option>
+                    </select>
+                </label>
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Entry Price</span>
+                    <input type="number" step="0.01" min="0" id="journalEntryPrice" placeholder="200" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                </label>
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Lots</span>
+                    <input type="number" step="1" min="1" id="journalLots" value="1" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                </label>
+            </div>
+
+            <label class="block mb-4">
+                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Notes / Rationale (optional)</span>
+                <textarea id="journalNotes" rows="2" placeholder="Why did you take this trade?" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white text-xs resize-none focus:outline-none focus:border-blue-500"></textarea>
+            </label>
+
+            <div class="flex gap-2">
+                <button onclick="closeJournalModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Cancel</button>
+                <button onclick="saveJournalEntry()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Save Trade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXIT TRADE MODAL -->
+    <div id="exitTradeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#0F172A] border border-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 class="text-sm font-black text-white mb-1 flex items-center gap-2">
+                <i data-lucide="flag" class="w-4 h-4 text-yellow-400"></i> Exit Trade
+            </h3>
+            <p id="exitTradeInfo" class="text-xs text-gray-400 mb-4">—</p>
+
+            <div class="space-y-3">
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Exit Price</span>
+                    <input type="number" step="0.01" min="0" id="exitTradePrice" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
+                </label>
+                <label class="block">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wide">Exit Date & Time</span>
+                    <input type="datetime-local" id="exitTradeTime" class="w-full mt-1 bg-[#111827] border border-gray-800 rounded-lg px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
+                </label>
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="cancelExitModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Cancel</button>
+                <button onclick="confirmExitTrade()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition cursor-pointer">Confirm Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Global Market State Parameters
+        let spotPrice = 24000;
+        let iv = 16;
+        let dte = 14;
+        const interestRate = 6.5; // RBI Repo Rate % 
+        const lotSize = 50; // Standard Lot Size
+        let isWebSocketLive = true;
+
+        // Strategy Basket Store
+        let strategyBasket = [];
+
+        // ==========================================
+        // COMMUNITY HUB — local chat simulation, persisted per-browser
+        // ==========================================
+        let currentChannel = 'general';
+        const channelMeta = {
+            'general':         { title: '# general',         desc: 'General market chat' },
+            'strategy-share':  { title: '# strategy-share',   desc: 'Share strategy templates — "Load Strategy" imports legs straight into your builder' },
+            'trade-updates':   { title: '# trade-updates',    desc: 'Post live trade progress, exits, and wins/losses' }
+        };
+
+        let communityMessages = null;
+        try { communityMessages = JSON.parse(localStorage.getItem('smartopt_communityMessages') || 'null'); } catch (e) { communityMessages = null; }
+        if (!communityMessages || !Array.isArray(communityMessages) || communityMessages.length === 0) {
+            communityMessages = [
+                { id: 'm1', channel: 'general', author: 'Priya Nair', initials: 'PN', isYou: false, time: Date.now() - 1000 * 60 * 60 * 5, text: 'Morning all — NIFTY holding above 24k, feels like a range-bound week ahead.' },
+                { id: 'm2', channel: 'general', author: 'Karan Shah', initials: 'KS', isYou: false, time: Date.now() - 1000 * 60 * 60 * 4, text: 'Agreed, IV has been crushed too. Not much premium left on weeklies.' },
+                { id: 'm3', channel: 'strategy-share', author: 'Rohan Mehta', initials: 'RM', isYou: false, isVerified: true, time: Date.now() - 1000 * 60 * 60 * 20,
+                    text: 'Running a structured Bull Call Spread to play the technical support bounce at 24,000. Max risk capped at net premium paid.',
+                    legs: [{ side: 'BUY', type: 'CE', strike: 24000, qty: 1, premium: 185 }, { side: 'SELL', type: 'CE', strike: 24200, qty: 1, premium: 95 }] },
+                { id: 'm4', channel: 'strategy-share', author: 'Aarav Gupta', initials: 'AG', isYou: false, time: Date.now() - 1000 * 60 * 60 * 10,
+                    text: 'Expected weekly range is extremely narrow. Placing a weekly Iron Condor with wider OTM wings to collect safe time value decay.',
+                    legs: [{ side: 'BUY', type: 'PE', strike: 23600, qty: 1, premium: 40 }, { side: 'SELL', type: 'PE', strike: 23800, qty: 1, premium: 75 }, { side: 'SELL', type: 'CE', strike: 24200, qty: 1, premium: 80 }, { side: 'BUY', type: 'CE', strike: 24400, qty: 1, premium: 42 }] },
+                { id: 'm5', channel: 'trade-updates', author: 'Priya Nair', initials: 'PN', isYou: false, time: Date.now() - 1000 * 60 * 30, text: 'Closed my NIFTY 24000 PE short for a clean +₹4,200. Theta decay did its job this week.' }
+            ];
+        }
+
+        function saveCommunity() {
+            try { localStorage.setItem('smartopt_communityMessages', JSON.stringify(communityMessages)); } catch (e) {}
+        }
+
+        // ==========================================
+        // TRADE JOURNAL — local, persisted per-browser
+        // ==========================================
+        let tradeJournal = [];
+        try { tradeJournal = JSON.parse(localStorage.getItem('smartopt_tradeJournal') || '[]'); } catch (e) { tradeJournal = []; }
+        let journalFilter = 'all';
+        let journalModalLegs = [];
+        let exitTradeTargetId = null;
+
+        function saveJournal() {
+            try { localStorage.setItem('smartopt_tradeJournal', JSON.stringify(tradeJournal)); } catch (e) {}
+        }
+
+        // Simulated Market Ticks over Local WebSocket Channel
+        setInterval(() => {
+            if (!isWebSocketLive) return;
+            const fluctuation = (Math.random() - 0.5) * 8;
+            spotPrice = parseFloat((spotPrice + fluctuation).toFixed(2));
+            
+            // Sync spot parameters to UI inputs
+            document.getElementById('tickerSpot').innerText = spotPrice.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            document.getElementById('sliderSpot').value = Math.round(spotPrice);
+            document.getElementById('valSpot').innerText = Math.round(spotPrice).toLocaleString('en-IN');
+            
+            // recalcLive (not recalculateSaaS) on purpose: a background price tick must never
+            // rebuild the leg basket DOM, or any input the user is mid-typing in would lose focus.
+            recalcLive();
+        }, 1200);
+
+        function toggleFeed() {
+            isWebSocketLive =!isWebSocketLive;
+            const btn = document.getElementById('toggleFeedBtn');
+            const dot = document.getElementById('wsStatusDot');
+            const text = document.getElementById('wsStatusText');
+
+            if (isWebSocketLive) {
+                btn.innerHTML = '<i data-lucide="pause" class="w-3.5 h-3.5"></i>';
+                btn.className = "p-1.5 bg-red-900/40 text-red-400 border border-red-900/30 rounded cursor-pointer hover:bg-red-900/60 transition";
+                dot.className = "w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse";
+                text.innerText = "WebSocket Live";
+            } else {
+                btn.innerHTML = '<i data-lucide="play" class="w-3.5 h-3.5"></i>';
+                btn.className = "p-1.5 bg-green-900/40 text-green-400 border border-green-900/30 rounded cursor-pointer hover:bg-green-900/60 transition";
+                dot.className = "w-2.5 h-2.5 bg-gray-500 rounded-full";
+                text.innerText = "Feed Paused";
+            }
+            lucide.createIcons();
+        }
+
+        // Switch Workspace Tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white');
+                b.classList.add('text-gray-400', 'hover:text-gray-200');
+            });
+
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+            const targetBtn = document.getElementById('tab-' + tabId);
+            targetBtn.classList.remove('text-gray-400', 'hover:text-gray-200');
+            targetBtn.classList.add('bg-blue-600', 'text-white');
+
+            recalculateSaaS();
+        }
+
+        // ==========================================
+        // BLACK-76 MATHEMATICAL EQUATION ENGINE
+        // ==========================================
+
+        function normalCDF(x) {
+            const t = 1 / (1 + 0.2316419 * Math.abs(x));
+            const d = 0.3989423 * Math.exp(-x * x / 2);
+            const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            return x >= 0? 1 - p : p;
+        }
+
+        function normalPDF(x) {
+            return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+        }
+
+        /**
+         * Calculates Theoretical Pricing and Option Greeks based on the Black-76 Model
+         * S: Forward asset price
+         * K: Option Strike Strike
+         * T: Time to Expiration in years (Days / 365)
+         * r: Interest Rate (Repo Rate e.g. 0.065 for 6.5%)
+         * sigma: Implied Volatility (e.g. 0.16)
+         * type: "CE" (Call) or "PE" (Put)
+         */
+        function solveBlack76(S, K, T, r, sigma, type) {
+            if (T <= 0) {
+                const intrinsic = type === 'CE'? Math.max(0, S - K) : Math.max(0, K - S);
+                return { price: intrinsic, delta: type === 'CE'? (S > K? 1 : 0) : (S < K? -1 : 0), gamma: 0, vega: 0, theta: 0 };
+            }
+
+            const d1 = (Math.log(S / K) + (0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+            const df = Math.exp(-r * T); // Discount factor
+
+            let price = 0;
+            let delta = 0;
+            const nd1 = normalPDF(d1);
+
+            if (type === 'CE') {
+                price = df * (S * normalCDF(d1) - K * normalCDF(d2));
+                delta = df * normalCDF(d1);
+            } else {
+                price = df * (K * normalCDF(-d2) - S * normalCDF(-d1));
+                delta = -df * normalCDF(-d1);
+            }
+
+            const gamma = (df * nd1) / (S * sigma * Math.sqrt(T));
+            const vega = (S * df * Math.sqrt(T) * nd1) / 100;
+
+            const term1 = -(S * df * nd1 * sigma) / (2 * Math.sqrt(T));
+            const rFact = r * df;
+            let thetaYearly = 0;
+            if (type === 'CE') {
+                thetaYearly = term1 + rFact * S * normalCDF(d1) - rFact * K * normalCDF(d2);
+            } else {
+                thetaYearly = term1 - rFact * S * normalCDF(-d1) + rFact * K * normalCDF(-d2);
+            }
+            const theta = thetaYearly / 365;
+
+            return { price, delta, gamma, vega, theta };
+        }
+
+        // ==========================================
+        // WORKSPACE CALCULATION CONTROLLER
+        // ==========================================
+
+        function updateParams() {
+            spotPrice = parseFloat(document.getElementById('sliderSpot').value);
+            iv = parseFloat(document.getElementById('sliderIv').value);
+            dte = parseFloat(document.getElementById('sliderDte').value);
+
+            document.getElementById('valSpot').innerText = Math.round(spotPrice).toLocaleString('en-IN');
+            document.getElementById('valIv').innerText = iv + "%";
+            document.getElementById('valDte').innerText = dte + " Days";
+
+            recalcLive();
+        }
+
+        function recalculateSaaS() {
+            renderBasketList();
+            renderOptionChain();
+            renderPayoffChart();
+            calculatePortfolioGreeks();
+            updateRealizedPnl();
+        }
+
+        // Lighter recalc used while a user is actively typing in a Strike/Premium/Lots field —
+        // deliberately skips renderBasketList() so the input the user is typing into never loses focus.
+        function recalcLive() {
+            renderOptionChain();
+            renderPayoffChart();
+            calculatePortfolioGreeks();
+            updateRealizedPnl();
+        }
+
+        function updateRealizedPnl() {
+            const realized = strategyBasket.filter(l => l.closed).reduce((sum, l) => sum + l.closedPnl, 0);
+            const el = document.getElementById('statRealizedPnl');
+            el.innerText = (realized >= 0 ? "+₹" : "-₹") + Math.round(Math.abs(realized)).toLocaleString('en-IN');
+            el.className = "font-bold " + (realized > 0 ? "text-green-400" : realized < 0 ? "text-red-400" : "text-gray-300");
+        }
+
+        function calculatePortfolioGreeks() {
+            let totalDelta = 0;
+            let totalGamma = 0;
+            let totalVega = 0;
+            let totalTheta = 0;
+
+            // Closed legs carry no forward market risk anymore — only open legs count toward live Greeks
+            strategyBasket.filter(leg => !leg.closed).forEach(leg => {
+                const g = solveBlack76(spotPrice, leg.strike, dte / 365, interestRate / 100, iv / 100, leg.type);
+                const sideMult = leg.side === 'BUY'? 1 : -1;
+
+                totalDelta += g.delta * sideMult * leg.qty * lotSize;
+                totalGamma += g.gamma * sideMult * leg.qty * lotSize;
+                totalVega += g.vega * sideMult * leg.qty * lotSize;
+                totalTheta += g.theta * sideMult * leg.qty * lotSize;
+            });
+
+            document.getElementById('portDelta').innerText = totalDelta.toFixed(2);
+            document.getElementById('portGamma').innerText = totalGamma.toFixed(4);
+            document.getElementById('portVega').innerText = "₹" + totalVega.toFixed(1);
+            document.getElementById('portTheta').innerText = "₹" + totalTheta.toFixed(1) + "/Day";
+        }
+
+        // ==========================================
+        // OPTION BASKET HANDLERS
+        // ==========================================
+
+        function renderBasketList() {
+            const list = document.getElementById('basketList');
+            const openCount = strategyBasket.filter(l => !l.closed).length;
+            const closedCount = strategyBasket.length - openCount;
+            document.getElementById('basketCount').innerText = closedCount > 0
+                ? `${openCount} Open, ${closedCount} Closed`
+                : `${openCount} Legs`;
+            list.innerHTML = '';
+
+            if (strategyBasket.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-6 border-2 border-dashed border-gray-800 rounded-xl text-xs text-gray-500">
+                        Basket is empty. Click "+ Add Leg" below, pull one from the Option Chain, or use a Strategy Preset above.
+                    </div>
+                `;
+                return;
+            }
+
+            strategyBasket.forEach((leg) => {
+                const legDiv = document.createElement('div');
+
+                if (leg.closed) {
+                    // Closed leg: locked-in, not part of forward risk anymore, but its P&L stays visible
+                    const pnlUp = leg.closedPnl >= 0;
+                    legDiv.className = "bg-slate-900/30 border border-gray-800/60 rounded-xl p-3 text-xs flex flex-col gap-2.5 relative";
+                    legDiv.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-700/20 text-gray-400 border border-gray-700">CLOSED</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${leg.side === 'BUY' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
+                                ${leg.side} ${leg.type}
+                            </span>
+                            <span class="text-gray-500 font-mono text-[10px]">Strike ${leg.strike}</span>
+                            <div class="flex-1"></div>
+                            <button onclick="removeLeg('${leg.id}')" title="Delete permanently" class="text-gray-500 hover:text-red-400 cursor-pointer transition shrink-0">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between bg-[#111827] border border-gray-800 rounded-lg px-3 py-2">
+                            <span class="font-mono text-[10px] text-gray-500">Entry ₹${leg.premium.toFixed(2)} &rarr; Exit ₹${leg.exitPrice.toFixed(2)}</span>
+                            <span class="font-mono text-sm font-bold ${pnlUp ? 'text-green-400' : 'text-red-400'}">${pnlUp ? '+' : '-'}₹${Math.abs(leg.closedPnl).toFixed(0)}</span>
+                        </div>
+                        <button onclick="reopenLeg('${leg.id}')" class="text-[10px] text-blue-400 hover:text-blue-300 font-semibold py-0.5">&#8635; Reopen Position</button>
+                    `;
+                } else {
+                    // Open leg: fully editable, can be closed (locks P&L) or deleted (removed entirely)
+                    legDiv.className = "bg-slate-900/60 border border-gray-800 rounded-xl p-3 text-xs flex flex-col gap-2.5 relative";
+                    legDiv.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <select onchange="updateLegSelect('${leg.id}', 'side', this.value)" class="font-bold rounded px-1.5 py-1 text-[10px] cursor-pointer border ${leg.side === 'BUY' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}">
+                                <option value="BUY" ${leg.side === 'BUY' ? 'selected' : ''}>BUY</option>
+                                <option value="SELL" ${leg.side === 'SELL' ? 'selected' : ''}>SELL</option>
+                            </select>
+                            <select onchange="updateLegSelect('${leg.id}', 'type', this.value)" class="font-bold rounded px-1.5 py-1 text-[10px] cursor-pointer bg-[#111827] border border-gray-800 text-white">
+                                <option value="CE" ${leg.type === 'CE' ? 'selected' : ''}>CE</option>
+                                <option value="PE" ${leg.type === 'PE' ? 'selected' : ''}>PE</option>
+                            </select>
+                            <div class="flex-1"></div>
+                            <button onclick="closeLeg('${leg.id}')" title="Close position (locks in P&L)" class="text-gray-500 hover:text-yellow-400 cursor-pointer transition shrink-0">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="removeLeg('${leg.id}')" title="Delete leg" class="text-gray-500 hover:text-red-400 cursor-pointer transition shrink-0">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <span class="text-gray-500 text-[10px] block mb-0.5">Strike</span>
+                                <input type="number" value="${leg.strike}" oninput="updateLegNumber('${leg.id}', 'strike', this.value)" class="w-full bg-[#111827] border border-gray-800 rounded px-2 py-1 text-white font-mono focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-[10px] block mb-0.5">Premium</span>
+                                <input type="number" value="${leg.premium}" oninput="updateLegNumber('${leg.id}', 'premium', this.value)" class="w-full bg-[#111827] border border-gray-800 rounded px-2 py-1 text-white font-mono focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-[10px] block mb-0.5">Lots</span>
+                                <input type="number" min="1" value="${leg.qty}" oninput="updateLegNumber('${leg.id}', 'qty', this.value)" class="w-full bg-[#111827] border border-gray-800 rounded px-2 py-1 text-white font-mono focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    `;
+                }
+                list.appendChild(legDiv);
+            });
+            lucide.createIcons();
+        }
+
+        function removeLeg(id) {
+            strategyBasket = strategyBasket.filter(leg => leg.id !== id);
+            recalculateSaaS();
+        }
+
+        // Side / Type change: an atomic selection (not continuous typing), safe to fully re-render
+        function updateLegSelect(id, field, val) {
+            strategyBasket = strategyBasket.map(leg => leg.id === id ? { ...leg, [field]: val } : leg);
+            recalculateSaaS();
+        }
+
+        // Strike / Premium / Lots: fires on every keystroke, so this deliberately avoids renderBasketList()
+        // (recalcLive) — otherwise the input would lose focus after the first character typed.
+        function updateLegNumber(id, field, val) {
+            strategyBasket = strategyBasket.map(leg => {
+                if (leg.id !== id) return leg;
+                const updated = { ...leg };
+                if (field === 'qty') {
+                    const n = parseInt(val);
+                    updated.qty = (isFinite(n) && n > 0) ? n : leg.qty;
+                } else if (field === 'strike') {
+                    const n = parseFloat(val);
+                    updated.strike = isFinite(n) ? n : leg.strike;
+                } else if (field === 'premium') {
+                    const n = parseFloat(val);
+                    updated.premium = isFinite(n) && n >= 0 ? n : leg.premium;
+                }
+                return updated;
+            });
+            recalcLive();
+        }
+
+        // ==========================================
+        // CLOSE POSITION MODAL (asks for exit price + lots before closing)
+        // ==========================================
+
+        let closeModalLegId = null;
+
+        // Clicking the close icon opens the modal instead of closing immediately
+        function closeLeg(id) {
+            openCloseModal(id);
+        }
+
+        function openCloseModal(id) {
+            const leg = strategyBasket.find(l => l.id === id && !l.closed);
+            if (!leg) return;
+            closeModalLegId = id;
+
+            // Theoretical price is only a starting suggestion — fully editable before confirming
+            const theor = parseFloat(solveBlack76(spotPrice, leg.strike, dte / 365, interestRate / 100, iv / 100, leg.type).price.toFixed(2));
+
+            document.getElementById('closeModalLegInfo').innerText =
+                `${leg.side} ${leg.type} · Strike ${leg.strike} · Entry ₹${leg.premium.toFixed(2)} · ${leg.qty} lot${leg.qty > 1 ? 's' : ''} open`;
+            document.getElementById('closeExitPrice').value = theor;
+            document.getElementById('closeLots').value = leg.qty;
+            document.getElementById('closeLots').max = leg.qty;
+            document.getElementById('closeLotsHint').innerText = `Max ${leg.qty} lot${leg.qty > 1 ? 's' : ''} available — leave lower to partially close`;
+
+            updateClosePreview();
+            document.getElementById('closeLegModal').classList.remove('hidden');
+        }
+
+        function updateClosePreview() {
+            const leg = strategyBasket.find(l => l.id === closeModalLegId);
+            if (!leg) return;
+            const exitPrice = parseFloat(document.getElementById('closeExitPrice').value) || 0;
+            let lots = parseInt(document.getElementById('closeLots').value) || 0;
+            lots = Math.min(Math.max(lots, 0), leg.qty);
+            const sideMult = leg.side === 'BUY' ? 1 : -1;
+            const pnl = (exitPrice - leg.premium) * sideMult * lots * lotSize;
+            const el = document.getElementById('closeModalPnlPreview');
+            el.innerText = (pnl >= 0 ? '+₹' : '-₹') + Math.abs(Math.round(pnl)).toLocaleString('en-IN');
+            el.className = "font-mono font-bold " + (pnl >= 0 ? 'text-green-400' : 'text-red-400');
+        }
+
+        function cancelCloseModal() {
+            closeModalLegId = null;
+            document.getElementById('closeLegModal').classList.add('hidden');
+        }
+
+        function confirmCloseLeg() {
+            const id = closeModalLegId;
+            const leg = strategyBasket.find(l => l.id === id);
+            if (!leg) { cancelCloseModal(); return; }
+
+            const exitPrice = parseFloat(document.getElementById('closeExitPrice').value);
+            let lotsToClose = parseInt(document.getElementById('closeLots').value);
+
+            if (!isFinite(exitPrice) || exitPrice < 0) { alert('Enter a valid exit price.'); return; }
+            if (!isFinite(lotsToClose) || lotsToClose < 1) lotsToClose = 1;
+            if (lotsToClose > leg.qty) lotsToClose = leg.qty;
+
+            const sideMult = leg.side === 'BUY' ? 1 : -1;
+            const closedPnl = (exitPrice - leg.premium) * sideMult * lotsToClose * lotSize;
+
+            if (lotsToClose >= leg.qty) {
+                // Full close: the whole leg locks in at the entered exit price
+                strategyBasket = strategyBasket.map(l =>
+                    l.id === id ? { ...l, closed: true, exitPrice, closedPnl, qty: lotsToClose } : l
+                );
+            } else {
+                // Partial close: shrink the remaining open leg, insert a separate closed entry
+                // right next to it for the lots that were exited — nothing about the open portion changes.
+                const idx = strategyBasket.findIndex(l => l.id === id);
+                strategyBasket = strategyBasket.map(l => l.id === id ? { ...l, qty: l.qty - lotsToClose } : l);
+                strategyBasket.splice(idx + 1, 0, {
+                    id: Math.random().toString(),
+                    type: leg.type,
+                    side: leg.side,
+                    strike: leg.strike,
+                    premium: leg.premium,
+                    qty: lotsToClose,
+                    closed: true,
+                    exitPrice,
+                    closedPnl
+                });
+            }
+
+            cancelCloseModal();
+            recalculateSaaS();
+        }
+
+        // Undo a close — brings the leg back into the open, editable basket
+        function reopenLeg(id) {
+            strategyBasket = strategyBasket.map(leg => leg.id === id ? { ...leg, closed: false, exitPrice: null, closedPnl: null } : leg);
+            recalculateSaaS();
+        }
+
+        // Manually add a fresh leg at-the-money, ready to edit
+        function addManualLeg() {
+            const atmStrike = Math.round(spotPrice / 100) * 100;
+            strategyBasket.push({
+                id: Math.random().toString(),
+                type: 'CE',
+                side: 'BUY',
+                strike: atmStrike,
+                premium: theoPrice(atmStrike, 'CE'),
+                qty: 1
+            });
+            recalculateSaaS();
+        }
+
+        function clearBasket() {
+            strategyBasket = [];
+            recalculateSaaS();
+        }
+
+        // Theoretical mid-price helper for auto-filling preset legs off the live Black-76 engine
+        function theoPrice(strike, type) {
+            return parseFloat(solveBlack76(spotPrice, strike, dte / 365, interestRate / 100, iv / 100, type).price.toFixed(2));
+        }
+
+        function loadStrategyPreset(presetType) {
+            const currentStrike = Math.round(spotPrice / 100) * 100;
+            clearBasket();
+
+            if (presetType === 'bull_call') {
+                strategyBasket = [
+                    { id: Math.random().toString(), type: 'CE', side: 'BUY', strike: currentStrike, premium: theoPrice(currentStrike, 'CE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'CE', side: 'SELL', strike: currentStrike + 200, premium: theoPrice(currentStrike + 200, 'CE'), qty: 1 }
+                ];
+            } else if (presetType === 'bear_put') {
+                strategyBasket = [
+                    { id: Math.random().toString(), type: 'PE', side: 'BUY', strike: currentStrike, premium: theoPrice(currentStrike, 'PE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'PE', side: 'SELL', strike: currentStrike - 200, premium: theoPrice(currentStrike - 200, 'PE'), qty: 1 }
+                ];
+            } else if (presetType === 'straddle') {
+                strategyBasket = [
+                    { id: Math.random().toString(), type: 'CE', side: 'BUY', strike: currentStrike, premium: theoPrice(currentStrike, 'CE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'PE', side: 'BUY', strike: currentStrike, premium: theoPrice(currentStrike, 'PE'), qty: 1 }
+                ];
+            } else if (presetType === 'iron_condor') {
+                strategyBasket = [
+                    { id: Math.random().toString(), type: 'PE', side: 'BUY', strike: currentStrike - 400, premium: theoPrice(currentStrike - 400, 'PE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'PE', side: 'SELL', strike: currentStrike - 200, premium: theoPrice(currentStrike - 200, 'PE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'CE', side: 'SELL', strike: currentStrike + 200, premium: theoPrice(currentStrike + 200, 'CE'), qty: 1 },
+                    { id: Math.random().toString(), type: 'CE', side: 'BUY', strike: currentStrike + 400, premium: theoPrice(currentStrike + 400, 'CE'), qty: 1 }
+                ];
+            }
+            recalculateSaaS();
+        }
+
+        // ==========================================
+        // OPTION CHAIN GENERATION
+        // ==========================================
+
+        function renderOptionChain() {
+            const body = document.getElementById('optionChainBody');
+            body.innerHTML = '';
+
+            const currentStrike = Math.round(spotPrice / 100) * 100;
+            const chainStrikes = [];
+            for (let i = -5; i <= 5; i++) {
+                chainStrikes.push(currentStrike + (i * 100));
+            }
+
+            chainStrikes.forEach(strike => {
+                const callSolve = solveBlack76(spotPrice, strike, dte / 365, interestRate / 100, iv / 100, 'CE');
+                const putSolve = solveBlack76(spotPrice, strike, dte / 365, interestRate / 100, iv / 100, 'PE');
+
+                const callLtp = parseFloat(callSolve.price.toFixed(2));
+                const putLtp = parseFloat(putSolve.price.toFixed(2));
+
+                const tr = document.createElement('tr');
+                tr.className = Math.abs(spotPrice - strike) < 50? "bg-blue-950/25 hover:bg-slate-900" : "hover:bg-slate-900";
+                tr.innerHTML = `
+                    <td class="px-3 py-2 text-green-400 font-bold">${callSolve.delta.toFixed(2)}</td>
+                    <td class="px-3 py-2 text-red-400">-${Math.abs(callSolve.theta).toFixed(1)}</td>
+                    <td class="px-3 py-2 text-white font-bold">₹${callLtp}</td>
+                    <td class="px-3 py-2 text-center border-r border-gray-800">
+                        <button onclick="addLegFromChain('CE', ${strike}, ${callLtp})" class="bg-green-600/10 hover:bg-green-600 text-green-400 hover:text-white border border-green-500/20 px-2 py-0.5 rounded cursor-pointer transition text-[10px]">
+                            + Buy CE
+                        </button>
+                    </td>
+
+                    <td class="text-center bg-[#1F2937] text-white font-black py-2">${strike}</td>
+
+                    <td class="px-3 py-2 text-center border-l border-gray-800">
+                        <button onclick="addLegFromChain('PE', ${strike}, ${putLtp})" class="bg-green-600/10 hover:bg-green-600 text-green-400 hover:text-white border border-green-500/20 px-2 py-0.5 rounded cursor-pointer transition text-[10px]">
+                            + Buy PE
+                        </button>
+                    </td>
+                    <td class="px-3 py-2 text-white font-bold">₹${putLtp}</td>
+                    <td class="px-3 py-2 text-red-400">-${Math.abs(putSolve.theta).toFixed(1)}</td>
+                    <td class="px-3 py-2 text-red-400">${putSolve.delta.toFixed(2)}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function addLegFromChain(type, strike, premium) {
+            const newLeg = {
+                id: Math.random().toString(),
+                type,
+                side: 'BUY',
+                strike,
+                premium,
+                qty: 1
+            };
+            strategyBasket.push(newLeg);
+            switchTab('builder');
+        }
+
+        // ==========================================
+        // DYNAMIC PAYOFF GRAPH (PURE SVG ENGINE)
+        // ==========================================
+
+        function renderPayoffChart() {
+            const container = document.getElementById('svgContainer');
+            container.innerHTML = '';
+
+            const openLegs = strategyBasket.filter(leg => !leg.closed);
+
+            if (openLegs.length === 0) {
+                container.innerHTML = `
+                    <div class="flex items-center justify-center h-full text-xs text-gray-500 text-center px-6">
+                        ${strategyBasket.length === 0
+                            ? "Add option legs to calculate and render the dynamic payoff vector curves."
+                            : "All legs in this basket are closed — no open exposure left. Realized P&amp;L is shown above and on each closed leg."}
+                    </div>
+                `;
+                document.getElementById('statMaxProfit').innerText = "₹0";
+                document.getElementById('statMaxLoss').innerText = "₹0";
+                return;
+            }
+
+            // Define prices arrays to evaluate curves
+            const rangeMin = spotPrice - 600;
+            const rangeMax = spotPrice + 600;
+            const step = (rangeMax - rangeMin) / 100;
+
+            const expiryPoints = [];
+            const todayPoints = [];
+
+            for (let i = 0; i <= 100; i++) {
+                const simSpot = rangeMin + (i * step);
+                let expiryPnl = 0;
+                let todayPnl = 0;
+
+                openLegs.forEach(leg => {
+                    const multiplier = leg.side === 'BUY'? 1 : -1;
+                    
+                    // Expiration intrinsic payoff computation 
+                    const intrinsic = leg.type === 'CE' 
+                       ? Math.max(0, simSpot - leg.strike) 
+                        : Math.max(0, leg.strike - simSpot);
+                    expiryPnl += (intrinsic - leg.premium) * multiplier * leg.qty * lotSize;
+
+                    // T+0 Today theoretical pricing
+                    const theorSolve = solveBlack76(simSpot, leg.strike, dte / 365, interestRate / 100, iv / 100, leg.type);
+                    todayPnl += (theorSolve.price - leg.premium) * multiplier * leg.qty * lotSize;
+                });
+
+                expiryPoints.push({ spot: simSpot, pnl: expiryPnl });
+                todayPoints.push({ spot: simSpot, pnl: todayPnl });
+            }
+
+            // Auto-calculate scales for graph plotting
+            const allPnls = [...expiryPoints.map(p => p.pnl),...todayPoints.map(p => p.pnl)];
+            const maxPnL = Math.max(2000, Math.max(...allPnls));
+            const minPnL = Math.min(-2000, Math.min(...allPnls));
+
+            // Map variables inside SVG width=800 and height=300
+            const mapX = (spot) => ((spot - rangeMin) / (rangeMax - rangeMin)) * 800;
+            const mapY = (pnl) => {
+                const range = maxPnL - minPnL;
+                const pct = (pnl - minPnL) / range;
+                return 300 - (pct * 300); // SVG height coordinate system inversion
+            };
+
+            // Update Max Profit / Max Loss summary values
+            const terminalLosses = expiryPoints.map(p => p.pnl);
+            const peakProfit = Math.max(...terminalLosses);
+            const peakLoss = Math.min(...terminalLosses);
+
+            document.getElementById('statMaxProfit').innerText = peakProfit > 100000? "Unlimited" : "₹" + Math.round(peakProfit).toLocaleString('en-IN');
+            document.getElementById('statMaxLoss').innerText = peakLoss < -100000? "Unlimited" : "₹" + Math.round(peakLoss).toLocaleString('en-IN');
+
+            // Generate Path definitions
+            let expiryPath = "";
+            let todayPath = "";
+            let fillAbove = `M ${mapX(rangeMin)} ${mapY(0)} `;
+            let fillBelow = `M ${mapX(rangeMin)} ${mapY(0)} `;
+
+            expiryPoints.forEach((pt, index) => {
+                const x = mapX(pt.spot);
+                const y = mapY(pt.pnl);
+                
+                expiryPath += (index === 0? "M" : "L") + ` ${x} ${y} `;
+                
+                if (pt.pnl >= 0) {
+                    fillAbove += `L ${x} ${y} `;
+                    fillBelow += `L ${x} ${mapY(0)} `;
+                } else {
+                    fillAbove += `L ${x} ${mapY(0)} `;
+                    fillBelow += `L ${x} ${y} `;
+                }
+            });
+
+            fillAbove += `L ${mapX(rangeMax)} ${mapY(0)} Z`;
+            fillBelow += `L ${mapX(rangeMax)} ${mapY(0)} Z`;
+
+            todayPoints.forEach((pt, index) => {
+                todayPath += (index === 0? "M" : "L") + ` ${mapX(pt.spot)} ${mapY(pt.pnl)} `;
+            });
+
+            const spotX = mapX(spotPrice);
+
+            // Assembly the final SVG element string
+            const svgString = `
+                <svg viewBox="0 0 800 300" class="w-full h-full overflow-visible">
+                    <defs>
+                        <linearGradient id="glowPositive" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#10B981" stop-opacity="0.25" />
+                            <stop offset="100%" stop-color="#10B981" stop-opacity="0" />
+                        </linearGradient>
+                        <linearGradient id="glowNegative" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#EF4444" stop-opacity="0" />
+                            <stop offset="100%" stop-color="#EF4444" stop-opacity="0.25" />
+                        </linearGradient>
+                    </defs>
+
+                    <line x1="0" y1="${mapY(0)}" x2="800" y2="${mapY(0)}" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4" />
+
+                    <path d="${fillAbove}" fill="url(#glowPositive)" />
+                    <path d="${fillBelow}" fill="url(#glowNegative)" />
+
+                    <path d="${expiryPath}" fill="none" stroke="#10B981" stroke-width="2.5" />
+
+                    <path d="${todayPath}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5 5" />
+
+                    <line x1="${spotX}" y1="0" x2="${spotX}" y2="300" stroke="#FF9900" stroke-width="1.5" stroke-dasharray="3 3" />
+                    
+                    <circle cx="${spotX}" cy="${mapY(0)}" r="4" fill="#FF9900" />
+                    
+                    <text x="15" y="20" fill="#64748b" font-family="monospace" font-size="10">P&L (₹)</text>
+                    <text x="730" y="${mapY(0) - 10}" fill="#64748b" font-family="monospace" font-size="10">Price</text>
+                </svg>
+            `;
+
+            container.innerHTML = svgString;
+        }
+
+        // ==========================================
+        // AGENTIC WHITE-BOX AI EMULATOR
+        // ==========================================
+
+        function runAiAgentDebate() {
+            const log = document.getElementById('aiStepsLog');
+            const box = document.getElementById('aiResponseContainer');
+            const ticker = document.getElementById('aiTickerInput').value.toUpperCase();
+
+            log.innerHTML = '';
+            box.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-[350px]">
+                    <i class="animate-spin text-blue-500 w-10 h-10 mb-4" data-lucide="refresh-cw"></i>
+                    <p class="text-xs font-mono text-gray-400">Agent executing specialized nodes...</p>
+                </div>
+            `;
+            lucide.createIcons();
+
+            const workflowSteps = [
+                "📡 Fetching live contract tick chains from database...",
+                "🧠 Node analyzes bullish support structures...",
+                "🐻 Node factors volatility regime risks...",
+                "⚖️ Node reconciling opposing catalysts..."
+            ];
+
+            let stepIdx = 0;
+            const logInterval = setInterval(() => {
+                if (stepIdx < workflowSteps.length) {
+                    const p = document.createElement('p');
+                    p.className = "flex items-center gap-2 text-green-400 font-mono";
+                    p.innerHTML = `<i data-lucide="check" class="w-4 h-4 shrink-0 text-green-500"></i> ${workflowSteps[stepIdx]}`;
+                    log.appendChild(p);
+                    lucide.createIcons();
+                    stepIdx++;
+                } else {
+                    clearInterval(logInterval);
+                    renderAiFinalReport(ticker);
+                }
+            }, 1000);
+        }
+
+        function renderAiFinalReport(ticker) {
+            const currentStrike = Math.round(spotPrice / 100) * 100;
+            const container = document.getElementById('aiResponseContainer');
+
+            container.innerHTML = `
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest font-mono block">Node Consensus</span>
+                            <h3 class="text-md font-black text-white mt-1">BULLISH SENTIMENT — OPTIMAL HIGH PROBABILITY SPREAD</h3>
+                        </div>
+                        <div class="bg-[#111827] px-3 py-1 border border-gray-800 rounded-lg text-center font-mono">
+                            <span class="text-[10px] text-gray-500 block">Confidence:</span>
+                            <span class="text-sm font-bold text-green-400">84%</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-green-950/25 border border-green-900/30 p-3 rounded-xl font-mono">
+                            <span class="text-green-400 text-xs font-bold block">Bullish Catalysts:</span>
+                            <span class="text-lg font-black text-white">8.5 / 10</span>
+                        </div>
+                        <div class="bg-red-950/25 border border-red-900/30 p-3 rounded-xl font-mono">
+                            <span class="text-red-400 text-xs font-bold block">Downside Risk Skew:</span>
+                            <span class="text-lg font-black text-white">3.2 / 10</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-[10px] font-bold text-gray-400 uppercase mb-1">Audit Trail Rationale:</h4>
+                        <div class="bg-[#111827] border border-gray-800 rounded-xl p-3.5 text-xs text-gray-300 leading-relaxed font-sans">
+                            Options volatility structures indicate downside protection buying has stabilized. Support bounds are strong near ${currentStrike}. Judge Node recommends deploying a Bull Call Spread to mitigate time value decay.
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-gray-800 p-4 rounded-2xl flex items-center justify-between flex-wrap gap-4">
+                        <div>
+                            <span class="text-[9px] font-bold text-blue-400 uppercase block tracking-wider">Target Trade Structure:</span>
+                            <span class="text-xs font-extrabold text-white">Bull Call Spread (${currentStrike} / ${currentStrike + 200} CE) </span>
+                        </div>
+                        <button onclick="applyAiStructuredLegs(${currentStrike})" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer transition">
+                            Load into Workspace
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyAiStructuredLegs(strike) {
+            clearBasket();
+            strategyBasket = [
+                { id: Math.random().toString(), type: 'CE', side: 'BUY', strike: strike, premium: theoPrice(strike, 'CE'), qty: 1 },
+                { id: Math.random().toString(), type: 'CE', side: 'SELL', strike: strike + 200, premium: theoPrice(strike + 200, 'CE'), qty: 1 }
+            ];
+            switchTab('builder');
+        }
+
+        // ==========================================
+        // COMMUNITY HUB — CHAT ENGINE
+        // ==========================================
+
+        function switchChannel(ch) {
+            currentChannel = ch;
+            document.querySelectorAll('.channel-btn').forEach(b => {
+                b.classList.remove('bg-blue-600/15', 'text-blue-400');
+                b.classList.add('text-gray-300');
+            });
+            const btn = document.getElementById('channel-' + ch);
+            btn.classList.add('bg-blue-600/15', 'text-blue-400');
+            btn.classList.remove('text-gray-300');
+
+            document.getElementById('channelTitle').innerText = channelMeta[ch].title;
+            document.getElementById('channelDesc').innerText = channelMeta[ch].desc;
+            document.getElementById('chatInput').placeholder = `Message #${ch}...`;
+            renderChatMessages();
+        }
+
+        function formatChatTime(ts) {
+            const d = new Date(ts);
+            const now = new Date();
+            const sameDay = d.toDateString() === now.toDateString();
+            return sameDay
+                ? d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+                : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderChatMessages() {
+            const wrap = document.getElementById('chatMessages');
+            wrap.innerHTML = '';
+            const msgs = communityMessages.filter(m => m.channel === currentChannel).sort((a, b) => a.time - b.time);
+
+            if (msgs.length === 0) {
+                wrap.innerHTML = `<div class="text-center py-10 text-xs text-gray-500">No messages yet in this channel. Say hi.</div>`;
+                return;
+            }
+
+            msgs.forEach(m => {
+                const row = document.createElement('div');
+                row.className = "flex items-start gap-2.5";
+
+                let legsHtml = '';
+                if (m.legs && m.legs.length) {
+                    legsHtml = `<div class="mt-2 bg-[#111827] border border-gray-800 rounded-xl p-2.5 flex flex-wrap items-center gap-1.5">
+                        ${m.legs.map(l => `<span class="bg-slate-900 border border-gray-800 rounded px-2 py-0.5 text-[10px] font-mono ${l.side === 'BUY' ? 'text-green-400' : 'text-red-400'}">${l.side} ${l.strike} ${l.type}${l.premium ? (' @ ₹' + l.premium) : ''}</span>`).join('')}
+                        ${!m.isYou ? `<button onclick="loadChatLegsById('${m.id}')" class="ml-auto text-[10px] text-blue-400 hover:text-blue-300 font-bold cursor-pointer">Load Strategy &rarr;</button>` : ''}
+                    </div>`;
+                }
+
+                row.innerHTML = `
+                    <div class="w-8 h-8 rounded-full ${m.isYou ? 'bg-blue-600' : 'bg-slate-700'} flex items-center justify-center text-[10px] font-black text-white shrink-0">${m.initials}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-bold text-gray-200">${m.author}</span>
+                            ${m.isVerified ? '<span class="bg-blue-500/15 text-blue-400 border border-blue-500/30 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">SEBI Verified</span>' : ''}
+                            <span class="text-[10px] text-gray-600 font-mono">${formatChatTime(m.time)}</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mt-0.5 leading-relaxed break-words">${m.text}</p>
+                        ${legsHtml}
+                    </div>
+                `;
+                wrap.appendChild(row);
+            });
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            communityMessages.push({
+                id: Math.random().toString(),
+                channel: currentChannel,
+                author: 'You',
+                initials: 'YOU',
+                isYou: true,
+                time: Date.now(),
+                text
+            });
+            input.value = '';
+            saveCommunity();
+            renderChatMessages();
+        }
+
+        // Attaches your live, open leg basket to a chat message as a trade card
+        function shareCurrentPosition() {
+            const openLegs = strategyBasket.filter(l => !l.closed);
+            if (openLegs.length === 0) {
+                alert('Your Strategy Leg Basket has no open legs to share. Build a position in Strategy Builder first.');
+                return;
+            }
+            communityMessages.push({
+                id: Math.random().toString(),
+                channel: currentChannel,
+                author: 'You',
+                initials: 'YOU',
+                isYou: true,
+                time: Date.now(),
+                text: 'Sharing my current position:',
+                legs: openLegs.map(l => ({ side: l.side, type: l.type, strike: l.strike, qty: l.qty, premium: l.premium }))
+            });
+            saveCommunity();
+            renderChatMessages();
+        }
+
+        function loadChatLegsById(msgId) {
+            const m = communityMessages.find(x => x.id === msgId);
+            if (!m || !m.legs) return;
+            clearBasket();
+            strategyBasket = m.legs.map(l => ({
+                id: Math.random().toString(),
+                type: l.type,
+                side: l.side,
+                strike: l.strike,
+                premium: l.premium || theoPrice(l.strike, l.type),
+                qty: l.qty
+            }));
+            switchTab('builder');
+        }
+
+        // ==========================================
+        // TRADE JOURNAL ENGINE
+        // ==========================================
+
+        function openJournalModal() {
+            journalModalLegs = [{ side: 'SELL', type: 'PE', strike: Math.round(spotPrice / 100) * 100, qty: 1 }];
+            document.getElementById('journalIndexName').value = 'NIFTY';
+            document.getElementById('journalEntryTime').value = localDatetimeNow();
+            document.getElementById('journalSide').value = 'SELL';
+            document.getElementById('journalEntryPrice').value = '';
+            document.getElementById('journalLots').value = 1;
+            document.getElementById('journalNotes').value = '';
+            renderJournalModalLegs();
+            document.getElementById('journalModal').classList.remove('hidden');
+        }
+
+        function localDatetimeNow() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            return now.toISOString().slice(0, 16);
+        }
+
+        function closeJournalModal() {
+            document.getElementById('journalModal').classList.add('hidden');
+        }
+
+        function renderJournalModalLegs() {
+            const wrap = document.getElementById('journalLegsWrap');
+            wrap.innerHTML = '';
+            journalModalLegs.forEach((leg, i) => {
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-[64px_56px_1fr_56px_24px] gap-1.5 items-center";
+                row.innerHTML = `
+                    <select onchange="journalModalLegs[${i}].side=this.value" class="text-[10px] font-bold rounded px-1 py-1.5 bg-[#111827] border border-gray-800 cursor-pointer ${leg.side === 'BUY' ? 'text-green-400' : 'text-red-400'}">
+                        <option value="BUY" ${leg.side === 'BUY' ? 'selected' : ''}>BUY</option>
+                        <option value="SELL" ${leg.side === 'SELL' ? 'selected' : ''}>SELL</option>
+                    </select>
+                    <select onchange="journalModalLegs[${i}].type=this.value" class="text-[10px] font-bold rounded px-1 py-1.5 bg-[#111827] border border-gray-800 text-white cursor-pointer">
+                        <option value="CE" ${leg.type === 'CE' ? 'selected' : ''}>CE</option>
+                        <option value="PE" ${leg.type === 'PE' ? 'selected' : ''}>PE</option>
+                    </select>
+                    <input type="number" value="${leg.strike}" placeholder="Strike" oninput="journalModalLegs[${i}].strike=parseFloat(this.value)||0" class="w-full bg-[#111827] border border-gray-800 rounded px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                    <input type="number" min="1" value="${leg.qty}" placeholder="Lots" oninput="journalModalLegs[${i}].qty=parseInt(this.value)||1" class="w-full bg-[#111827] border border-gray-800 rounded px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
+                    <button onclick="removeJournalModalLeg(${i})" class="text-gray-500 hover:text-red-400 cursor-pointer">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                wrap.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addJournalModalLeg() {
+            journalModalLegs.push({ side: 'SELL', type: 'PE', strike: Math.round(spotPrice / 100) * 100, qty: 1 });
+            renderJournalModalLegs();
+        }
+
+        function removeJournalModalLeg(i) {
+            journalModalLegs.splice(i, 1);
+            renderJournalModalLegs();
+        }
+
+        // Pull your live open basket straight into the journal entry — no re-typing strikes
+        function importBasketToJournal() {
+            const openLegs = strategyBasket.filter(l => !l.closed);
+            if (openLegs.length === 0) {
+                alert('Your Strategy Leg Basket has no open legs to import. Add legs in Strategy Builder first.');
+                return;
+            }
+            journalModalLegs = openLegs.map(l => ({ side: l.side, type: l.type, strike: l.strike, qty: l.qty }));
+            renderJournalModalLegs();
+        }
+
+        function saveJournalEntry() {
+            const indexName = document.getElementById('journalIndexName').value.trim() || 'NIFTY';
+            const entryTime = document.getElementById('journalEntryTime').value;
+            const side = document.getElementById('journalSide').value;
+            const entryPrice = parseFloat(document.getElementById('journalEntryPrice').value);
+            const lots = parseInt(document.getElementById('journalLots').value) || 1;
+            const notes = document.getElementById('journalNotes').value.trim();
+
+            if (!entryTime) { alert('Pick an entry date & time.'); return; }
+            if (!isFinite(entryPrice) || entryPrice < 0) { alert('Enter a valid entry price.'); return; }
+            if (journalModalLegs.length === 0) { alert('Add at least one leg to describe the trade.'); return; }
+
+            tradeJournal.unshift({
+                id: Math.random().toString(),
+                indexName,
+                entryTime,
+                legs: journalModalLegs.map(l => ({ ...l })),
+                side,
+                entryPrice,
+                lots,
+                exitPrice: null,
+                exitTime: null,
+                pnl: null,
+                notes,
+                status: 'OPEN'
+            });
+            saveJournal();
+            closeJournalModal();
+            renderJournal();
+        }
+
+        function legsSummary(legs) {
+            return legs.map(l => `${l.side} ${l.strike} ${l.type} ×${l.qty}`).join(', ');
+        }
+
+        function setJournalFilter(f) {
+            journalFilter = f;
+            ['all', 'open', 'closed'].forEach(k => {
+                const b = document.getElementById('jfilter-' + k);
+                if (k === f) { b.classList.add('bg-blue-600', 'text-white'); b.classList.remove('text-gray-400'); }
+                else { b.classList.remove('bg-blue-600', 'text-white'); b.classList.add('text-gray-400'); }
+            });
+            renderJournal();
+        }
+
+        function renderJournal() {
+            const list = document.getElementById('journalList');
+            list.innerHTML = '';
+
+            const filtered = tradeJournal.filter(t => journalFilter === 'all' ? true : (journalFilter === 'open' ? t.status === 'OPEN' : t.status === 'CLOSED'));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="text-center py-12 border-2 border-dashed border-gray-800 rounded-xl text-xs text-gray-500">No trades here yet. Click "+ New Trade Entry" to start your journal.</div>`;
+            } else {
+                filtered.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = "bg-[#0F172A] border border-gray-800 rounded-2xl p-4 shadow-lg";
+
+                    let pnlHtml;
+                    if (t.status === 'CLOSED') {
+                        const up = t.pnl >= 0;
+                        pnlHtml = `<span class="font-mono font-bold text-sm ${up ? 'text-green-400' : 'text-red-400'}">${up ? '+' : '-'}₹${Math.abs(Math.round(t.pnl)).toLocaleString('en-IN')}</span>`;
+                    } else {
+                        pnlHtml = `<button onclick="openExitModal('${t.id}')" class="bg-yellow-600/10 hover:bg-yellow-600/25 text-yellow-400 border border-yellow-600/20 text-[10px] font-bold px-3 py-1.5 rounded-lg cursor-pointer transition">Exit Trade</button>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-4 flex-wrap">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-white">${t.indexName}</span>
+                                    <span class="px-2 py-0.5 rounded text-[9px] font-bold ${t.status === 'OPEN' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' : 'bg-gray-700/20 text-gray-400 border border-gray-700'}">${t.status}</span>
+                                    <span class="px-2 py-0.5 rounded text-[9px] font-bold ${t.side === 'BUY' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">${t.side}</span>
+                                </div>
+                                <p class="text-[10px] text-gray-500 font-mono mt-0.5">${new Date(t.entryTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                            </div>
+                            <div class="text-right">${pnlHtml}</div>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-1.5">
+                            ${t.legs.map(l => `<span class="bg-[#111827] border border-gray-800 rounded px-2 py-1 text-[10px] font-mono ${l.side === 'BUY' ? 'text-green-400' : 'text-red-400'}">${l.side} ${l.strike} ${l.type} ×${l.qty}</span>`).join('')}
+                        </div>
+                        <div class="mt-3 flex items-center gap-5 text-xs font-mono text-gray-400 flex-wrap">
+                            <span>Entry: <span class="text-white font-bold">₹${t.entryPrice.toFixed(2)}</span></span>
+                            ${t.exitPrice !== null ? `<span>Exit: <span class="text-white font-bold">₹${t.exitPrice.toFixed(2)}</span></span>` : ''}
+                            <span>Lots: <span class="text-white font-bold">${t.lots}</span></span>
+                        </div>
+                        ${t.notes ? `<p class="mt-3 text-xs text-gray-400 bg-[#111827] border border-gray-800 rounded-lg p-2.5 leading-relaxed">${t.notes}</p>` : ''}
+                        <div class="mt-3 flex justify-end">
+                            <button onclick="deleteJournalEntry('${t.id}')" class="text-[10px] text-gray-500 hover:text-red-400 font-semibold cursor-pointer">Delete Entry</button>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            }
+
+            renderJournalStats();
+        }
+
+        function renderJournalStats() {
+            const total = tradeJournal.length;
+            const open = tradeJournal.filter(t => t.status === 'OPEN').length;
+            const closed = tradeJournal.filter(t => t.status === 'CLOSED');
+            const wins = closed.filter(t => t.pnl > 0).length;
+            const winRate = closed.length ? (wins / closed.length * 100) : null;
+            const totalPnl = closed.reduce((s, t) => s + t.pnl, 0);
+            const avgPnl = closed.length ? totalPnl / closed.length : null;
+
+            document.getElementById('jStatTotal').innerText = total;
+            document.getElementById('jStatOpen').innerText = open;
+            document.getElementById('jStatClosed').innerText = closed.length;
+            document.getElementById('jStatWinRate').innerText = winRate === null ? '—' : winRate.toFixed(0) + '%';
+
+            const totalEl = document.getElementById('jStatTotalPnl');
+            totalEl.innerText = closed.length ? ((totalPnl >= 0 ? '+₹' : '-₹') + Math.abs(Math.round(totalPnl)).toLocaleString('en-IN')) : '—';
+            totalEl.className = "text-lg font-black font-mono " + (totalPnl > 0 ? 'text-green-400' : totalPnl < 0 ? 'text-red-400' : 'text-white');
+
+            const avgEl = document.getElementById('jStatAvgPnl');
+            avgEl.innerText = avgPnl === null ? '—' : ((avgPnl >= 0 ? '+₹' : '-₹') + Math.abs(Math.round(avgPnl)).toLocaleString('en-IN'));
+            avgEl.className = "text-lg font-black font-mono " + (avgPnl > 0 ? 'text-green-400' : avgPnl < 0 ? 'text-red-400' : 'text-white');
+        }
+
+        function deleteJournalEntry(id) {
+            if (!confirm('Delete this journal entry permanently?')) return;
+            tradeJournal = tradeJournal.filter(t => t.id !== id);
+            saveJournal();
+            renderJournal();
+        }
+
+        function openExitModal(id) {
+            const t = tradeJournal.find(t => t.id === id);
+            if (!t) return;
+            exitTradeTargetId = id;
+            document.getElementById('exitTradeInfo').innerText = `${t.indexName} · ${legsSummary(t.legs)} · Entry ₹${t.entryPrice.toFixed(2)} · ${t.lots} lot${t.lots > 1 ? 's' : ''}`;
+            document.getElementById('exitTradeTime').value = localDatetimeNow();
+            document.getElementById('exitTradePrice').value = '';
+            document.getElementById('exitTradeModal').classList.remove('hidden');
+        }
+
+        function cancelExitModal() {
+            exitTradeTargetId = null;
+            document.getElementById('exitTradeModal').classList.add('hidden');
+        }
+
+        function confirmExitTrade() {
+            const id = exitTradeTargetId;
+            const t = tradeJournal.find(t => t.id === id);
+            if (!t) { cancelExitModal(); return; }
+
+            const exitPrice = parseFloat(document.getElementById('exitTradePrice').value);
+            const exitTime = document.getElementById('exitTradeTime').value;
+            if (!isFinite(exitPrice) || exitPrice < 0) { alert('Enter a valid exit price.'); return; }
+            if (!exitTime) { alert('Pick an exit date & time.'); return; }
+
+            // SELL (credit) trade: profit = entry collected − exit paid. BUY (debit) trade: profit = exit − entry paid.
+            const pnl = (t.side === 'SELL' ? (t.entryPrice - exitPrice) : (exitPrice - t.entryPrice)) * t.lots * lotSize;
+
+            tradeJournal = tradeJournal.map(x => x.id === id ? { ...x, exitPrice, exitTime, status: 'CLOSED', pnl } : x);
+            saveJournal();
+            cancelExitModal();
+            renderJournal();
+        }
+
+        // ==========================================
+        // MAIN INIT SEQUENCE
+        // ==========================================
+        window.onload = function() {
+            loadStrategyPreset('iron_condor'); // seeds the basket so the payoff chart renders immediately
+            switchChannel('general');
+            renderJournal();
+        };
+    </script>
+</body>
+</html>
